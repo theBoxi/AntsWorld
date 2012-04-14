@@ -19,6 +19,16 @@ public class Vector extends TwoInts {
 		super.plus(v);
 	}
 	
+	public int getWalkingDistance() {
+		int distancX = getX() < 0 ? -1 * getX() : getX();
+		int distancY = getY() < 0 ? -1 * getY() : getY();
+		return distancX + distancY;
+	}
+	
+	public double getDistance() {
+		return Math.sqrt(getX() * getX() + getY() * getY());
+	}
+	
 	public static Vector plus(Vector v1, Vector v2) {
 		Vector ret = new Vector();
 		ret.setX(v1.getX() + v2.getX());

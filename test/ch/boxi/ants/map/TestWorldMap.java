@@ -1,6 +1,7 @@
-package ch.boxi.ants.test;
+package ch.boxi.ants.map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -10,17 +11,15 @@ import ch.boxi.ants.Ant;
 import ch.boxi.ants.AntHill;
 import ch.boxi.ants.AntRace;
 import ch.boxi.ants.helper.IdGenerator;
-import ch.boxi.ants.map.Coordinate;
-import ch.boxi.ants.map.OutOfRangeException;
-import ch.boxi.ants.map.SimpleWorldMap;
-import ch.boxi.ants.map.Vector;
-import ch.boxi.ants.map.WorldMap;
+import ch.boxi.ants.move.View;
 
 public class TestWorldMap {
 	private static final int		width			= 12;
 	private static final int		height			= 10;
 	private static final Coordinate	in1				= new Coordinate(1, 1);
 	private static final Coordinate	in2				= new Coordinate(2, 2);
+	private static final Coordinate	in3				= new Coordinate(4, 4);
+	private static final Coordinate	in4				= new Coordinate(11, 9);
 	private static final Coordinate	out1			= new Coordinate(15, 4);
 	private static final Coordinate	out2			= new Coordinate(4, 15);
 	private static final Coordinate	out3			= new Coordinate(15, 15);
@@ -36,6 +35,7 @@ public class TestWorldMap {
 	private static final Ant		ant1			= new Ant("ant1", race, 100);
 	private static final Ant		ant2			= new Ant("ant2", race, 100);
 	private static final Ant		ant3			= new Ant("ant3", race, 100);
+	private static final Ant		ant4			= new Ant("ant4", race, 100);
 	private static final int		steps			= 0;
 	
 	private WorldMap				map;
@@ -49,8 +49,8 @@ public class TestWorldMap {
 	
 	@Test
 	public void testWidth() {
-		assertEquals(width, map.getWidth());
-		assertEquals(height, map.getHeight());
+		assertEquals(width, map.getDimension().getWidth());
+		assertEquals(height, map.getDimension().getHeight());
 	}
 	
 	@Test
@@ -170,5 +170,74 @@ public class TestWorldMap {
 		} catch (OutOfRangeException e) {
 			assertTrue(true);
 		}
+	}
+	
+	@Test
+	public void testGetCoordinatesFor() {
+		SimpleWorldMap map = new SimpleWorldMap(width, height, false);
+		assertEquals(1, map.getCoordinatesFor(new Coordinate(0, 0), 0).size());
+		assertEquals(3, map.getCoordinatesFor(new Coordinate(0, 0), 1).size());
+		assertEquals(5, map.getCoordinatesFor(new Coordinate(1, 1), 1).size());
+		assertEquals(13, map.getCoordinatesFor(new Coordinate(2, 2), 2).size());
+		assertEquals(12, map.getCoordinatesFor(new Coordinate(1, 2), 2).size());
+		
+		map = new SimpleWorldMap(width, height, true);
+		assertEquals(1, map.getCoordinatesFor(new Coordinate(0, 0), 0).size());
+		assertEquals(5, map.getCoordinatesFor(new Coordinate(0, 0), 1).size());
+		assertEquals(5, map.getCoordinatesFor(new Coordinate(1, 1), 1).size());
+		assertEquals(13, map.getCoordinatesFor(new Coordinate(2, 2), 2).size());
+		assertEquals(13, map.getCoordinatesFor(new Coordinate(1, 2), 2).size());
+	}
+	
+	@Test
+	public void testGetViewEndingMap() {
+		map.add(ant1, in1);
+		map.add(ant2, in2);
+		map.add(ant3, in3);
+		map.add(ant4, in4);
+		
+		View view = map.get(in2, 2);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertFalse(view.allValues().contains(ant3));
+		assertFalse(view.allValues().contains(ant4));
+		
+		view = map.get(in2, 4);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertTrue(view.allValues().contains(ant3));
+		assertFalse(view.allValues().contains(ant4));
+		
+		view = map.get(in2, 6);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertTrue(view.allValues().contains(ant3));
+		assertFalse(view.allValues().contains(ant4));
+	}
+	
+	@Test
+	public void testGetViewEndlessMap() {
+		endLessMap.add(ant1, in1);
+		endLessMap.add(ant2, in2);
+		endLessMap.add(ant3, in3);
+		endLessMap.add(ant4, in4);
+		
+		View view = endLessMap.get(in2, 2);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertFalse(view.allValues().contains(ant3));
+		assertFalse(view.allValues().contains(ant4));
+		
+		view = endLessMap.get(in2, 4);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertTrue(view.allValues().contains(ant3));
+		assertFalse(view.allValues().contains(ant4));
+		
+		view = endLessMap.get(in2, 6);
+		assertTrue(view.allValues().contains(ant1));
+		assertTrue(view.allValues().contains(ant2));
+		assertTrue(view.allValues().contains(ant3));
+		assertTrue(view.allValues().contains(ant4));
 	}
 }

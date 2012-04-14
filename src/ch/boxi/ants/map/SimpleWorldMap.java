@@ -1,7 +1,11 @@
 package ch.boxi.ants.map;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import ch.boxi.ants.WorldObject;
 import ch.boxi.ants.move.View;
@@ -10,9 +14,7 @@ import ch.boxi.javaUtil.map.MultiMap;
 public class SimpleWorldMap implements WorldMap {
 	private MultiMap<Coordinate, WorldObject>	map;
 	private Map<WorldObject, Coordinate>		objToCoordinateMap;
-	private int									width;
-	private int									height;
-	private boolean								endLess;
+	private MapDimension						dimension;
 	
 	private SimpleWorldMap() {
 		map = new MultiMap<Coordinate, WorldObject>();
@@ -21,9 +23,7 @@ public class SimpleWorldMap implements WorldMap {
 	
 	public SimpleWorldMap(int width, int height, boolean endLess) {
 		this();
-		this.width = width;
-		this.height = height;
-		this.endLess = endLess;
+		this.dimension = new MapDimension(width, height, endLess);
 	}
 	
 	@Override
@@ -35,22 +35,33 @@ public class SimpleWorldMap implements WorldMap {
 	
 	@Override
 	public View get(Coordinate c, int steps) {
-		if (steps > 0) {
-			throw new IllegalArgumentException("This is Just Simple can only handle steps = 0");
-		}
 		View v = new View();
-		v.put(c, map.get(c));
+		for (Coordinate coordinate : getCoordinatesFor(c, steps)) {
+			List<WorldObject> list = map.get(coordinate);
+			if (list != null && !list.isEmpty()) {
+				v.put(coordinate, list);
+			}
+		}
 		return v;
 	}
 	
-	@Override
-	public int getHeight() {
-		return height;
+	Set<Coordinate> getCoordinatesFor(Coordinate center, int steps) {
+		Set<Coordinate> coordinates = new TreeSet<Coordinate>();
+		for (int x = center.getX() - steps; x <= center.getX() + steps; x++) {
+			for (int y = center.getY() - steps; y <= center.getY() + steps; y++) {
+				Coordinate c = new Coordinate(x, y);
+				if (CoordinateHelper.smallestVector(center, c, dimension).getWalkingDistance() <= steps) {
+					c = makeCoordinateLegal(c, false);
+					coordinates.add(c);
+				}
+			}
+		}
+		return coordinates;
 	}
 	
 	@Override
-	public int getWidth() {
-		return width;
+	public MapDimension getDimension() {
+		return dimension;
 	}
 	
 	@Override
@@ -62,9 +73,7 @@ public class SimpleWorldMap implements WorldMap {
 		map.remove(c, o);
 		
 		Coordinate newC = Coordinate.plus(c, v);
-		if (endLess) {
-			newC = bringCoordinateInEndlessRange(newC);
-		}
+		newC = makeCoordinateLegal(newC, true);
 		testCoordinateInRange(newC);
 		map.put(newC, o);
 		objToCoordinateMap.put(o, newC);
@@ -82,29 +91,74 @@ public class SimpleWorldMap implements WorldMap {
 	}
 	
 	private void testCoordinateInRange(Coordinate c) throws OutOfRangeException {
-		if (c.getX() > width || c.getY() > height) {
+		if (c.getX() >= dimension.getWidth() || c.getY() >= dimension.getHeight()) {
 			throw new OutOfRangeException("Coordinate " + c.toString() + " is out of worldRange");
 		}
+	}
+	
+	private Coordinate makeCoordinateLegal(Coordinate c, boolean throwOutOfRangeException) throws OutOfRangeException {
+		if (dimension.isEndless()) {
+			return bringCoordinateInEndlessRange(c);
+		} else {
+			return cutCoordinateInRange(c, throwOutOfRangeException);
+		}
+	}
+	
+	private Coordinate cutCoordinateInRange(Coordinate c, boolean throwOutOfRangeException) {
+		Coordinate newCoordinate = new Coordinate();
+		
+		if (c.getX() < 0) {
+			if (throwOutOfRangeException)
+				throw new OutOfRangeException();
+			newCoordinate.setX(0);
+		} else if (c.getX() >= dimension.getWidth()) {
+			if (throwOutOfRangeException)
+				throw new OutOfRangeException();
+			newCoordinate.setX(dimension.getWidth());
+		} else {
+			newCoordinate.setX(c.getX());
+		}
+		
+		if (c.getY() < 0) {
+			if (throwOutOfRangeException)
+				throw new OutOfRangeException();
+			newCoordinate.setY(0);
+		} else if (c.getY() >= dimension.getHeight()) {
+			if (throwOutOfRangeException)
+				throw new OutOfRangeException();
+			newCoordinate.setY(dimension.getHeight());
+		} else {
+			newCoordinate.setY(c.getY());
+		}
+		
+		return newCoordinate;
 	}
 	
 	private Coordinate bringCoordinateInEndlessRange(Coordinate c) {
 		int x = c.getX();
 		int y = c.getY();
 		while (x < 0) {
-			x = width + x; // +- = - ;-)
+			x = dimension.getWidth() + x; // +- = - ;-)
 		}
 		while (y < 0) {
-			y = height + y; // +- = - ;-)
+			y = dimension.getHeight() + y; // +- = - ;-)
 		}
 		
-		int newX = x % width;
-		int newY = y % height;
+		int newX = x % dimension.getWidth();
+		int newY = y % dimension.getHeight();
 		Coordinate newC = new Coordinate(newX, newY);
 		return newC;
 	}
 	
-	public boolean isEndLess() {
-		return endLess;
+	@Override
+	public Map<WorldObject, Coordinate> getAllWorldObjects() {
+		return Collections.unmodifiableMap(objToCoordinateMap);
+	}
+	
+	@Override
+	public void clear() {
+		objToCoordinateMap.clear();
+		map.clear();
 	}
 	
 }

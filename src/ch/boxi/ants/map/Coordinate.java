@@ -21,6 +21,13 @@ public class Coordinate extends TwoInts {
 		return ret;
 	}
 	
+	public static Vector minus(Coordinate c1, Coordinate c2) {
+		Vector v = new Vector();
+		v.setX(c2.getX() - c1.getX());
+		v.setY(c2.getY() - c1.getY());
+		return v;
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Coordinate)) {

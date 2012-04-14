@@ -45,7 +45,8 @@ public class World {
 		int antPerRace = Integer.parseInt(config.getProperty(ConfigKeys.INIT_ANTS_PER_RACE));
 		int initLifePoints = Integer.parseInt(config.getProperty(ConfigKeys.INIT_AMOUNT_OF_LIFEPOINTS));
 		for (int i = 0; i < raceCount; i++) {
-			Coordinate initCoordinate = RandomHelper.getCoordiante(map.getWidth(), map.getHeight());
+			Coordinate initCoordinate = RandomHelper.getCoordiante(map.getDimension().getWidth(), map.getDimension()
+					.getHeight());
 			AntHill hill = new AntHill(IdGenerator.getNextUniqueID());
 			AntRace race = new AntRace(null, hill);
 			map.add(hill, initCoordinate);
@@ -66,7 +67,7 @@ public class World {
 		float probability = Float.parseFloat(config.getProperty(ConfigKeys.PROBABILITY_OF_CARRION_ON_FIELD));
 		int moveCost = Integer.parseInt(config.getProperty(ConfigKeys.REDUCE_LIFE_PER_ROUND_WALKING));
 		int stdCost = Integer.parseInt(config.getProperty(ConfigKeys.REDUCE_LIFE_PER_ROUND_STD));
-		int numOfFields = map.getWidth() * map.getHeight();
+		int numOfFields = map.getDimension().getWidth() * map.getDimension().getHeight();
 		int raceCount = Integer.parseInt(config.getProperty(ConfigKeys.COUNT_OF_RACES));
 		int antPerRace = Integer.parseInt(config.getProperty(ConfigKeys.INIT_ANTS_PER_RACE));
 		int numOfAnts = raceCount * antPerRace;
@@ -76,7 +77,7 @@ public class World {
 			numOfLPs = Math.round(2 * (1 / probability) * (moveCost + stdCost) * numOfAnts
 					* RandomHelper.getProbability());
 			Carrion carr = new Carrion(IdGenerator.getNextUniqueID(), numOfLPs);
-			map.add(carr, RandomHelper.getCoordiante(map.getWidth(), map.getHeight()));
+			map.add(carr, RandomHelper.getCoordiante(map.getDimension().getWidth(), map.getDimension().getHeight()));
 		}
 	}
 	
@@ -156,8 +157,8 @@ public class World {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int y = 0; y < map.getHeight(); y++) {
-			for (int x = 0; x < map.getWidth(); x++) {
+		for (int y = 0; y < map.getDimension().getHeight(); y++) {
+			for (int x = 0; x < map.getDimension().getWidth(); x++) {
 				View view = map.get(new Coordinate(x, y), 0);
 				boolean foundanAnt = false;
 				boolean foundaCarrion = false;

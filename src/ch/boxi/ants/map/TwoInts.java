@@ -1,6 +1,6 @@
 package ch.boxi.ants.map;
 
-public class TwoInts {
+public class TwoInts implements Comparable<TwoInts> {
 	private int	x;
 	private int	y;
 	
@@ -33,5 +33,24 @@ public class TwoInts {
 	void plus(TwoInts ti) {
 		setX(getX() + ti.getX());
 		setY(getY() + ti.getY());
+	}
+	
+	@Override
+	public int compareTo(TwoInts o) {
+		if (x == o.x && y == o.y) {
+			return 0;
+		} else if (x == o.x && y < o.y) {
+			return -2;
+		} else if (x < o.x && y == o.y) {
+			return -1;
+		} else if (x < o.x && y < o.y) {
+			return 3;
+		} else if (x == o.x && y > o.y) {
+			return 1;
+		} else if (x > o.x && y == o.y) {
+			return 2;
+		} else { // x > o.x && y > o.y
+			return 3;
+		}
 	}
 }

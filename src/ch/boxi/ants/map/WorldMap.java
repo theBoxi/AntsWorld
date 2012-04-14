@@ -1,12 +1,12 @@
 package ch.boxi.ants.map;
 
+import java.util.Map;
+
 import ch.boxi.ants.WorldObject;
 import ch.boxi.ants.move.View;
 
 public interface WorldMap {
-	public int getWidth();
-	
-	public int getHeight();
+	public MapDimension getDimension();
 	
 	public View get(Coordinate c, int steps);
 	
@@ -16,5 +16,7 @@ public interface WorldMap {
 	
 	public void remove(WorldObject o);
 	
-	public boolean isEndLess();
+	public Map<WorldObject, Coordinate> getAllWorldObjects();
+	
+	public void clear();
 }
