@@ -28,7 +28,7 @@ public class SimpleWorldMap implements WorldMap {
 	
 	@Override
 	public void add(WorldObject o, Coordinate c) {
-		testCoordinateInRange(c);
+		CoordinateHelper.testCoordinateInRange(c, dimension);
 		map.put(c, o);
 		objToCoordinateMap.put(o, c);
 	}
@@ -51,7 +51,7 @@ public class SimpleWorldMap implements WorldMap {
 			for (int y = center.getY() - steps; y <= center.getY() + steps; y++) {
 				Coordinate c = new Coordinate(x, y);
 				if (CoordinateHelper.smallestVector(center, c, dimension).getWalkingDistance() <= steps) {
-					c = makeCoordinateLegal(c, false);
+					c = CoordinateHelper.makeCoordinateLegal(c, false, dimension);
 					coordinates.add(c);
 				}
 			}
@@ -73,8 +73,8 @@ public class SimpleWorldMap implements WorldMap {
 		map.remove(c, o);
 		
 		Coordinate newC = Coordinate.plus(c, v);
-		newC = makeCoordinateLegal(newC, true);
-		testCoordinateInRange(newC);
+		newC = CoordinateHelper.makeCoordinateLegal(newC, true, dimension);
+		CoordinateHelper.testCoordinateInRange(newC, dimension);
 		map.put(newC, o);
 		objToCoordinateMap.put(o, newC);
 		
@@ -88,66 +88,6 @@ public class SimpleWorldMap implements WorldMap {
 			throw new IllegalArgumentException("WorldObject not known");
 		}
 		map.remove(c, o);
-	}
-	
-	private void testCoordinateInRange(Coordinate c) throws OutOfRangeException {
-		if (c.getX() >= dimension.getWidth() || c.getY() >= dimension.getHeight()) {
-			throw new OutOfRangeException("Coordinate " + c.toString() + " is out of worldRange");
-		}
-	}
-	
-	private Coordinate makeCoordinateLegal(Coordinate c, boolean throwOutOfRangeException) throws OutOfRangeException {
-		if (dimension.isEndless()) {
-			return bringCoordinateInEndlessRange(c);
-		} else {
-			return cutCoordinateInRange(c, throwOutOfRangeException);
-		}
-	}
-	
-	private Coordinate cutCoordinateInRange(Coordinate c, boolean throwOutOfRangeException) {
-		Coordinate newCoordinate = new Coordinate();
-		
-		if (c.getX() < 0) {
-			if (throwOutOfRangeException)
-				throw new OutOfRangeException();
-			newCoordinate.setX(0);
-		} else if (c.getX() >= dimension.getWidth()) {
-			if (throwOutOfRangeException)
-				throw new OutOfRangeException();
-			newCoordinate.setX(dimension.getWidth());
-		} else {
-			newCoordinate.setX(c.getX());
-		}
-		
-		if (c.getY() < 0) {
-			if (throwOutOfRangeException)
-				throw new OutOfRangeException();
-			newCoordinate.setY(0);
-		} else if (c.getY() >= dimension.getHeight()) {
-			if (throwOutOfRangeException)
-				throw new OutOfRangeException();
-			newCoordinate.setY(dimension.getHeight());
-		} else {
-			newCoordinate.setY(c.getY());
-		}
-		
-		return newCoordinate;
-	}
-	
-	private Coordinate bringCoordinateInEndlessRange(Coordinate c) {
-		int x = c.getX();
-		int y = c.getY();
-		while (x < 0) {
-			x = dimension.getWidth() + x; // +- = - ;-)
-		}
-		while (y < 0) {
-			y = dimension.getHeight() + y; // +- = - ;-)
-		}
-		
-		int newX = x % dimension.getWidth();
-		int newY = y % dimension.getHeight();
-		Coordinate newC = new Coordinate(newX, newY);
-		return newC;
 	}
 	
 	@Override
