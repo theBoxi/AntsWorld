@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/JavaUtil.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/guava-12.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

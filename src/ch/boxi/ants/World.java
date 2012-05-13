@@ -100,7 +100,7 @@ public class World {
 		for (int i = 0; i < 12; i++) {
 			for (Ant ant : antsState.keySet()) {
 				AntState state = antsState.get(ant);
-				View v = map.get(state.getPosition(), 0);
+				View v = map.get(state.getPosition(), 2);
 				Move move = ant.getNextMove(v, state.getLifePoints());
 				int lifeReduce = 0;
 				Coordinate newPosition = state.getPosition();

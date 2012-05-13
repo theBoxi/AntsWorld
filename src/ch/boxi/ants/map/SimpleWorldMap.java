@@ -9,15 +9,17 @@ import java.util.TreeSet;
 
 import ch.boxi.ants.WorldObject;
 import ch.boxi.ants.move.View;
-import ch.boxi.javaUtil.map.MultiMap;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class SimpleWorldMap implements WorldMap {
-	private MultiMap<Coordinate, WorldObject>	map;
-	private Map<WorldObject, Coordinate>		objToCoordinateMap;
-	private MapDimension						dimension;
+	private ListMultimap<Coordinate, WorldObject>	map;
+	private Map<WorldObject, Coordinate>			objToCoordinateMap;
+	private MapDimension							dimension;
 	
 	private SimpleWorldMap() {
-		map = new MultiMap<Coordinate, WorldObject>();
+		map = LinkedListMultimap.create();
 		objToCoordinateMap = new HashMap<WorldObject, Coordinate>();
 	}
 	
